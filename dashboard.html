@@ -1,0 +1,1428 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Sistem Prediksi Ketersediaan Stok Pangan Kota Semarang</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f4f7fb;
+    color: #182235;
+}
+
+header {
+    background: linear-gradient(135deg, #0e4d82, #176fb6);
+    color: white;
+    padding: 28px 30px;
+}
+
+.header-inner {
+    max-width: 1400px;
+    margin: auto;
+}
+
+header h1 {
+    font-size: 27px;
+    margin-bottom: 7px;
+}
+
+header p {
+    font-size: 14px;
+    opacity: .9;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 26px auto;
+    padding: 0 20px 40px;
+}
+
+.panel,
+.card {
+    background: white;
+    border-radius: 14px;
+    box-shadow: 0 3px 14px rgba(0,0,0,.06);
+}
+
+.panel {
+    padding: 22px;
+    margin-bottom: 22px;
+}
+
+.controls {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 18px;
+    align-items: end;
+}
+
+label {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 13px;
+    font-weight: bold;
+    color: #475569;
+}
+
+select,
+button {
+    width: 100%;
+    height: 45px;
+    border-radius: 9px;
+    font-size: 14px;
+}
+
+select {
+    background: white;
+    border: 1px solid #d8dee8;
+    padding: 0 12px;
+}
+
+button {
+    border: none;
+    background: #1269aa;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #0e578f;
+}
+
+button:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
+
+.summary-cards,
+.result-cards {
+    display: grid;
+    gap: 16px;
+    margin-bottom: 22px;
+}
+
+.summary-cards {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.result-cards {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.card {
+    padding: 20px;
+}
+
+.card-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #718096;
+    letter-spacing: .55px;
+    margin-bottom: 9px;
+}
+
+.card-value {
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.card-sub {
+    font-size: 12px;
+    color: #718096;
+    margin-top: 6px;
+}
+
+.notice {
+    padding: 15px 17px;
+    border-radius: 11px;
+    margin-bottom: 22px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1e40af;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.warning {
+    display: none;
+    padding: 15px 17px;
+    border-radius: 11px;
+    margin-bottom: 22px;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    color: #9a3412;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.badge {
+    display: inline-block;
+    padding: 6px 11px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.badge-high {
+    color: #166534;
+    background: #dcfce7;
+}
+
+.badge-medium {
+    color: #92400e;
+    background: #fef3c7;
+}
+
+.badge-low {
+    color: #991b1b;
+    background: #fee2e2;
+}
+
+.grid-main {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 22px;
+    margin-bottom: 22px;
+}
+
+.panel-title {
+    font-size: 17px;
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+.panel-description {
+    color: #718096;
+    font-size: 12px;
+    line-height: 1.6;
+    margin-bottom: 16px;
+}
+
+.legend-note {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 14px;
+    font-size: 12px;
+    color: #475569;
+}
+
+.legend-item {
+    background: #f8fafc;
+    padding: 7px 10px;
+    border-radius: 8px;
+}
+
+.chart-wrap {
+    position: relative;
+    min-height: 420px;
+}
+
+.info-list {
+    list-style: none;
+}
+
+.info-list li {
+    padding: 12px 0;
+    border-bottom: 1px solid #eef2f7;
+}
+
+.info-list li:last-child {
+    border-bottom: none;
+}
+
+.info-key {
+    color: #718096;
+    font-size: 12px;
+    margin-bottom: 4px;
+}
+
+.info-value {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 720px;
+}
+
+th,
+td {
+    padding: 12px 14px;
+    border-bottom: 1px solid #edf1f6;
+    text-align: left;
+    font-size: 13px;
+}
+
+th {
+    background: #f8fafc;
+    color: #475569;
+    font-size: 12px;
+}
+
+tbody tr:hover {
+    background: #f8fbff;
+}
+
+.footer-note {
+    margin-top: 18px;
+    color: #718096;
+    font-size: 12px;
+    line-height: 1.65;
+}
+
+.loading {
+    display: none;
+    padding: 15px;
+    color: #718096;
+    font-size: 13px;
+}
+
+@media (max-width: 1000px) {
+    .summary-cards,
+    .result-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .grid-main {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 700px) {
+    .controls,
+    .summary-cards,
+    .result-cards {
+        grid-template-columns: 1fr;
+    }
+
+    header h1 {
+        font-size: 21px;
+    }
+
+    .chart-wrap {
+        min-height: 350px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<div class="header-inner">
+    <h1>Sistem Prediksi Ketersediaan Stok Pangan Kota Semarang</h1>
+
+    <p>
+        Historis 2019–2024 • Proyeksi Resmi 2025 • Forecast Model 2026–2028
+    </p>
+</div>
+</header>
+
+<main class="container">
+
+<!-- RINGKASAN -->
+<section class="summary-cards">
+
+    <div class="card">
+        <div class="card-label">Komoditas</div>
+        <div class="card-value" id="summaryCommodity">7</div>
+        <div class="card-sub">Komoditas yang dimodelkan</div>
+    </div>
+
+    <div class="card">
+        <div class="card-label">Reliabilitas Tinggi</div>
+        <div class="card-value" id="summaryHigh">5</div>
+        <div class="card-sub">Berdasarkan validation sMAPE</div>
+    </div>
+
+    <div class="card">
+        <div class="card-label">Reliabilitas Rendah</div>
+        <div class="card-value" id="summaryLow">2</div>
+        <div class="card-sub">Perlu interpretasi hati-hati</div>
+    </div>
+
+    <div class="card">
+        <div class="card-label">Forecast Dimulai</div>
+        <div class="card-value">Jan 2026</div>
+        <div class="card-sub">Horizon maksimum 36 bulan</div>
+    </div>
+
+</section>
+
+
+<div class="notice">
+    <strong>Catatan data:</strong>
+    periode 2019–2024 ditampilkan sebagai data historis ketersediaan.
+    Data 2025 berasal dari <strong>proyeksi ketersediaan resmi</strong>
+    dan tidak diklaim sebagai realisasi aktual. Forecast model dimulai
+    Januari 2026.
+</div>
+
+
+<!-- CONTROL -->
+<section class="panel">
+
+<div class="controls">
+
+    <div>
+        <label>Komoditas</label>
+        <select id="commodity"></select>
+    </div>
+
+    <div>
+        <label>Periode Prediksi</label>
+
+        <select id="horizon">
+            <option value="1">1 Bulan</option>
+            <option value="3">3 Bulan</option>
+            <option value="6">6 Bulan</option>
+            <option value="12" selected>12 Bulan</option>
+            <option value="24">24 Bulan</option>
+            <option value="36">36 Bulan</option>
+        </select>
+    </div>
+
+    <div>
+        <button id="predictButton" onclick="loadPrediction()">
+            Tampilkan Prediksi
+        </button>
+    </div>
+
+</div>
+</section>
+
+
+<div class="warning" id="warningBox"></div>
+
+
+<!-- HASIL UTAMA -->
+<section class="result-cards">
+
+<div class="card">
+    <div class="card-label" id="predictionLabel">
+        Prediksi Januari 2026
+    </div>
+
+    <div class="card-value" id="predictionValue">-</div>
+    <div class="card-sub" id="predictionDate">-</div>
+</div>
+
+
+<div class="card">
+    <div class="card-label">Champion Model</div>
+    <div class="card-value" id="modelValue">-</div>
+
+    <div class="card-sub">
+        Model dipilih dari validation 2023
+    </div>
+</div>
+
+
+<div class="card">
+    <div class="card-label">Validation sMAPE</div>
+    <div class="card-value" id="smapeValue">-</div>
+
+    <div class="card-sub">
+        Dasar pemilihan champion model
+    </div>
+</div>
+
+
+<div class="card">
+    <div class="card-label">Reliabilitas Sistem</div>
+    <div class="card-value" id="reliabilityContainer">-</div>
+
+    <div class="card-sub">
+        Indikator berbasis validation sMAPE
+    </div>
+</div>
+
+</section>
+
+
+<!-- GRAFIK + INFO -->
+<section class="grid-main">
+
+<div class="panel">
+
+    <div class="panel-title">
+        Historis, Proyeksi Resmi, dan Forecast
+    </div>
+
+    <div class="panel-description">
+        Grafik memisahkan sumber data agar proyeksi resmi 2025
+        tidak terlihat sebagai realisasi historis.
+    </div>
+
+    <div class="legend-note">
+        <span class="legend-item">● Historis 2019–2024</span>
+        <span class="legend-item">● Proyeksi Resmi 2025</span>
+        <span class="legend-item">┄ Forecast Model 2026+</span>
+    </div>
+
+    <div class="chart-wrap">
+        <canvas id="forecastChart"></canvas>
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <div class="panel-title">
+        Informasi Prediksi
+    </div>
+
+    <div class="panel-description">
+        Metadata model untuk komoditas yang sedang dipilih.
+    </div>
+
+    <ul class="info-list">
+
+        <li>
+            <div class="info-key">Komoditas</div>
+            <div class="info-value" id="infoCommodity">-</div>
+        </li>
+
+        <li>
+            <div class="info-key">Model</div>
+            <div class="info-value" id="infoModel">-</div>
+        </li>
+
+        <li>
+            <div class="info-key">Historis</div>
+            <div class="info-value">
+                Januari 2019 – Desember 2024
+            </div>
+        </li>
+
+        <li>
+            <div class="info-key">Proyeksi Resmi</div>
+            <div class="info-value">
+                Januari – Desember 2025
+            </div>
+        </li>
+
+        <li>
+            <div class="info-key">Forecast Model</div>
+            <div class="info-value" id="infoForecastPeriod">-</div>
+        </li>
+
+        <li>
+            <div class="info-key">Horizon</div>
+            <div class="info-value" id="infoHorizon">-</div>
+        </li>
+
+        <li>
+            <div class="info-key">Satuan</div>
+            <div class="info-value">Ton</div>
+        </li>
+
+    </ul>
+
+</div>
+
+</section>
+
+
+<!-- TABEL -->
+<section class="panel">
+
+    <div class="panel-title">
+        Tabel Hasil Forecast Model
+    </div>
+
+    <div class="panel-description">
+        Prediksi dimulai Januari 2026 dan dihitung secara bulanan.
+    </div>
+
+    <div class="loading" id="loading">
+        Memproses prediksi...
+    </div>
+
+    <div class="table-wrapper">
+
+        <table>
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>Periode</th>
+                    <th>Horizon</th>
+                    <th>Prediksi Ketersediaan</th>
+                    <th>Satuan</th>
+                    <th>Model</th>
+                </tr>
+            </thead>
+
+            <tbody id="forecastTableBody"></tbody>
+        </table>
+
+    </div>
+
+    <div class="footer-note">
+        Nilai forecast merupakan estimasi berdasarkan pola data yang tersedia.
+        Data 2025 merupakan proyeksi ketersediaan resmi dan digunakan pada
+        tahap refit deployment. Jenis champion model tetap dikunci dari
+        validation 2023. Semakin panjang horizon, ketidakpastian prediksi
+        dapat meningkat.
+    </div>
+
+</section>
+
+</main>
+
+
+<script>
+
+let forecastChart = null;
+
+
+// ============================================================
+// FORMAT
+// ============================================================
+
+function formatNumber(value) {
+    return new Intl.NumberFormat(
+        "id-ID",
+        {
+            maximumFractionDigits: 2
+        }
+    ).format(value);
+}
+
+
+function formatDate(dateString) {
+
+    const d = new Date(
+        dateString + "T00:00:00"
+    );
+
+    return d.toLocaleDateString(
+        "id-ID",
+        {
+            month: "short",
+            year: "numeric"
+        }
+    );
+}
+
+
+function formatDateLong(dateString) {
+
+    const d = new Date(
+        dateString + "T00:00:00"
+    );
+
+    return d.toLocaleDateString(
+        "id-ID",
+        {
+            month: "long",
+            year: "numeric"
+        }
+    );
+}
+
+
+function reliabilityBadge(value) {
+
+    let cssClass = "badge-low";
+
+    if (value === "tinggi") {
+        cssClass = "badge-high";
+    }
+
+    else if (value === "sedang") {
+        cssClass = "badge-medium";
+    }
+
+    return `
+        <span class="badge ${cssClass}">
+            ${value.toUpperCase()}
+        </span>
+    `;
+}
+
+
+// ============================================================
+// API
+// ============================================================
+
+async function loadCommodities() {
+
+    const response = await fetch(
+        "/commodities"
+    );
+
+    if (!response.ok) {
+        throw new Error(
+            "Gagal mengambil daftar komoditas."
+        );
+    }
+
+    const json = await response.json();
+
+    const select =
+        document.getElementById(
+            "commodity"
+        );
+
+    select.innerHTML = "";
+
+    let high = 0;
+    let low = 0;
+
+    json.data.forEach(item => {
+
+        const option =
+            document.createElement(
+                "option"
+            );
+
+        option.value =
+            item.komoditas;
+
+        option.textContent =
+            item.komoditas;
+
+        select.appendChild(
+            option
+        );
+
+        if (
+            item.reliabilitas ===
+            "tinggi"
+        ) {
+            high++;
+        }
+
+        if (
+            item.reliabilitas ===
+            "rendah"
+        ) {
+            low++;
+        }
+
+    });
+
+    document.getElementById(
+        "summaryCommodity"
+    ).textContent =
+        json.jumlah;
+
+    document.getElementById(
+        "summaryHigh"
+    ).textContent =
+        high;
+
+    document.getElementById(
+        "summaryLow"
+    ).textContent =
+        low;
+}
+
+
+async function getHistorical(
+    commodity
+) {
+
+    const response = await fetch(
+        "/historical?commodity=" +
+        encodeURIComponent(
+            commodity
+        )
+    );
+
+    if (!response.ok) {
+        throw new Error(
+            "Gagal mengambil data."
+        );
+    }
+
+    return await response.json();
+}
+
+
+async function getForecast(
+    commodity,
+    horizon
+) {
+
+    const response = await fetch(
+        "/forecast",
+        {
+            method: "POST",
+
+            headers: {
+                "Content-Type":
+                    "application/json"
+            },
+
+            body: JSON.stringify({
+                komoditas:
+                    commodity,
+
+                horizon:
+                    Number(horizon)
+            })
+        }
+    );
+
+    if (!response.ok) {
+
+        const data =
+            await response.json();
+
+        throw new Error(
+            data.detail ||
+            "Forecast gagal."
+        );
+    }
+
+    return await response.json();
+}
+
+
+// ============================================================
+// CHART
+// ============================================================
+
+function updateChart(
+    historical,
+    forecast
+) {
+
+    const hist =
+        historical.data.filter(
+            row =>
+                row.status_data ===
+                "historis"
+        );
+
+    const official =
+        historical.data.filter(
+            row =>
+                row.status_data ===
+                "proyeksi_resmi"
+        );
+
+    const predicted =
+        forecast.forecast;
+
+
+    const labels = [
+        ...hist.map(x => x.tanggal),
+        ...official.map(x => x.tanggal),
+        ...predicted.map(x => x.tanggal)
+    ];
+
+
+    const total =
+        labels.length;
+
+
+    const histData =
+        Array(total).fill(null);
+
+    const officialData =
+        Array(total).fill(null);
+
+    const forecastData =
+        Array(total).fill(null);
+
+
+    // Historis
+    hist.forEach(
+        (row, index) => {
+            histData[index] =
+                row.nilai;
+        }
+    );
+
+
+    // Proyeksi resmi:
+    // sambungkan dari titik historis terakhir.
+    if (hist.length > 0) {
+        officialData[
+            hist.length - 1
+        ] = hist[
+            hist.length - 1
+        ].nilai;
+    }
+
+    official.forEach(
+        (row, index) => {
+            officialData[
+                hist.length + index
+            ] = row.nilai;
+        }
+    );
+
+
+    // Forecast:
+    // sambungkan dari Desember 2025.
+    if (official.length > 0) {
+        forecastData[
+            hist.length +
+            official.length -
+            1
+        ] =
+            official[
+                official.length - 1
+            ].nilai;
+    }
+
+    predicted.forEach(
+        (row, index) => {
+
+            forecastData[
+                hist.length +
+                official.length +
+                index
+            ] =
+                row.prediksi_ketersediaan;
+        }
+    );
+
+
+    if (forecastChart) {
+        forecastChart.destroy();
+    }
+
+
+    const ctx =
+        document
+        .getElementById(
+            "forecastChart"
+        )
+        .getContext("2d");
+
+
+    forecastChart =
+        new Chart(
+            ctx,
+            {
+                type: "line",
+
+                data: {
+                    labels: labels,
+
+                    datasets: [
+
+                        {
+                            label:
+                                "Historis 2019–2024",
+
+                            data:
+                                histData,
+
+                            borderColor:
+                                "#2563eb",
+
+                            backgroundColor:
+                                "#2563eb",
+
+                            borderWidth:
+                                2,
+
+                            pointRadius:
+                                2,
+
+                            tension:
+                                .22
+                        },
+
+                        {
+                            label:
+                                "Proyeksi Resmi 2025",
+
+                            data:
+                                officialData,
+
+                            borderColor:
+                                "#f59e0b",
+
+                            backgroundColor:
+                                "#f59e0b",
+
+                            borderWidth:
+                                2.5,
+
+                            pointRadius:
+                                3,
+
+                            tension:
+                                .22
+                        },
+
+                        {
+                            label:
+                                "Forecast Model",
+
+                            data:
+                                forecastData,
+
+                            borderColor:
+                                "#16a34a",
+
+                            backgroundColor:
+                                "#16a34a",
+
+                            borderWidth:
+                                2.5,
+
+                            borderDash:
+                                [7, 5],
+
+                            pointRadius:
+                                3,
+
+                            tension:
+                                .22
+                        }
+
+                    ]
+                },
+
+                options: {
+
+                    responsive:
+                        true,
+
+                    maintainAspectRatio:
+                        false,
+
+                    interaction: {
+                        mode: "index",
+                        intersect: false
+                    },
+
+                    plugins: {
+
+                        tooltip: {
+
+                            callbacks: {
+
+                                title:
+                                    function(items) {
+
+                                        if (
+                                            items.length === 0
+                                        ) {
+                                            return "";
+                                        }
+
+                                        return formatDateLong(
+                                            items[0].label
+                                        );
+                                    },
+
+                                label:
+                                    function(context) {
+
+                                        if (
+                                            context.raw ===
+                                            null
+                                        ) {
+                                            return "";
+                                        }
+
+                                        return (
+                                            context.dataset.label +
+                                            ": " +
+                                            formatNumber(
+                                                context.raw
+                                            ) +
+                                            " Ton"
+                                        );
+                                    }
+                            }
+                        }
+                    },
+
+                    scales: {
+
+                        x: {
+
+                            ticks: {
+
+                                maxTicksLimit:
+                                    16,
+
+                                callback:
+                                    function(
+                                        value,
+                                        index
+                                    ) {
+
+                                        return formatDate(
+                                            labels[index]
+                                        );
+                                    }
+                            }
+                        },
+
+                        y: {
+
+                            beginAtZero:
+                                false,
+
+                            ticks: {
+
+                                callback:
+                                    function(value) {
+
+                                        return formatNumber(
+                                            value
+                                        );
+                                    }
+                            }
+                        }
+                    }
+                }
+            }
+        );
+}
+
+
+// ============================================================
+// TABLE
+// ============================================================
+
+function updateTable(
+    forecast
+) {
+
+    const tbody =
+        document.getElementById(
+            "forecastTableBody"
+        );
+
+    tbody.innerHTML = "";
+
+    forecast.forecast.forEach(
+        (
+            row,
+            index
+        ) => {
+
+            const tr =
+                document.createElement(
+                    "tr"
+                );
+
+            tr.innerHTML = `
+                <td>${index + 1}</td>
+
+                <td>
+                    ${formatDateLong(
+                        row.tanggal
+                    )}
+                </td>
+
+                <td>
+                    ${row.horizon_bulan}
+                    bulan
+                </td>
+
+                <td>
+                    <strong>
+                    ${formatNumber(
+                        row.prediksi_ketersediaan
+                    )}
+                    </strong>
+                </td>
+
+                <td>
+                    ${row.satuan}
+                </td>
+
+                <td>
+                    ${forecast.model}
+                </td>
+            `;
+
+            tbody.appendChild(
+                tr
+            );
+
+        }
+    );
+}
+
+
+// ============================================================
+// INFO
+// ============================================================
+
+function updateInfo(
+    result
+) {
+
+    const first =
+        result.forecast[0];
+
+    const last =
+        result.forecast[
+            result.forecast.length - 1
+        ];
+
+
+    document.getElementById(
+        "predictionLabel"
+    ).textContent =
+        "Prediksi " +
+        formatDateLong(
+            first.tanggal
+        );
+
+
+    document.getElementById(
+        "predictionValue"
+    ).textContent =
+        formatNumber(
+            first.prediksi_ketersediaan
+        ) +
+        " Ton";
+
+
+    document.getElementById(
+        "predictionDate"
+    ).textContent =
+        formatDateLong(
+            first.tanggal
+        );
+
+
+    document.getElementById(
+        "modelValue"
+    ).textContent =
+        result.model;
+
+
+    document.getElementById(
+        "smapeValue"
+    ).textContent =
+        formatNumber(
+            result.validation_sMAPE_pct
+        ) +
+        "%";
+
+
+    document.getElementById(
+        "reliabilityContainer"
+    ).innerHTML =
+        reliabilityBadge(
+            result.reliabilitas
+        );
+
+
+    document.getElementById(
+        "infoCommodity"
+    ).textContent =
+        result.komoditas;
+
+
+    document.getElementById(
+        "infoModel"
+    ).textContent =
+        result.model;
+
+
+    document.getElementById(
+        "infoHorizon"
+    ).textContent =
+        result.horizon +
+        " bulan";
+
+
+    document.getElementById(
+        "infoForecastPeriod"
+    ).textContent =
+        formatDateLong(
+            first.tanggal
+        ) +
+        " – " +
+        formatDateLong(
+            last.tanggal
+        );
+
+
+    const warning =
+        document.getElementById(
+            "warningBox"
+        );
+
+
+    if (
+        result.reliabilitas ===
+        "rendah"
+    ) {
+
+        warning.style.display =
+            "block";
+
+        warning.innerHTML = `
+            <strong>Perhatian:</strong>
+            model untuk
+            <strong>${result.komoditas}</strong>
+            mempunyai validation sMAPE
+            <strong>
+                ${formatNumber(
+                    result.validation_sMAPE_pct
+                )}%
+            </strong>.
+            Hasil forecast mempunyai reliabilitas relatif rendah
+            dan harus diinterpretasikan dengan hati-hati.
+        `;
+    }
+
+    else {
+
+        warning.style.display =
+            "none";
+
+        warning.innerHTML =
+            "";
+    }
+}
+
+
+// ============================================================
+// MAIN
+// ============================================================
+
+async function loadPrediction() {
+
+    const button =
+        document.getElementById(
+            "predictButton"
+        );
+
+    const loading =
+        document.getElementById(
+            "loading"
+        );
+
+    const commodity =
+        document.getElementById(
+            "commodity"
+        ).value;
+
+    const horizon =
+        document.getElementById(
+            "horizon"
+        ).value;
+
+
+    button.disabled = true;
+
+    button.textContent =
+        "Memproses...";
+
+    loading.style.display =
+        "block";
+
+
+    try {
+
+        const [
+            historical,
+            forecast
+        ] =
+            await Promise.all([
+                getHistorical(
+                    commodity
+                ),
+
+                getForecast(
+                    commodity,
+                    horizon
+                )
+            ]);
+
+
+        updateInfo(
+            forecast
+        );
+
+        updateChart(
+            historical,
+            forecast
+        );
+
+        updateTable(
+            forecast
+        );
+
+    }
+
+    catch(error) {
+
+        alert(
+            error.message
+        );
+
+        console.error(
+            error
+        );
+    }
+
+    finally {
+
+        button.disabled =
+            false;
+
+        button.textContent =
+            "Tampilkan Prediksi";
+
+        loading.style.display =
+            "none";
+    }
+}
+
+
+async function initialize() {
+
+    try {
+
+        await loadCommodities();
+
+        await loadPrediction();
+
+    }
+
+    catch(error) {
+
+        alert(
+            "Dashboard gagal dimuat: " +
+            error.message
+        );
+    }
+}
+
+
+initialize();
+
+</script>
+</body>
+</html>

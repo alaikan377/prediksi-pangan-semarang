@@ -1,0 +1,46 @@
+{
+  "system_name": "Sistem Prediksi Ketersediaan Stok Pangan Kota Semarang",
+  "target": "ketersediaan pangan",
+  "data_period": {
+    "start": "2019-01-01",
+    "end": "2025-12-01"
+  },
+  "data_status": {
+    "2019_2024": "data historis ketersediaan",
+    "2025": "proyeksi ketersediaan resmi 2025; tidak diklaim sebagai realisasi aktual"
+  },
+  "forecast_start": "2026-01-01",
+  "forecast_end": "2028-12-01",
+  "window_months": 12,
+  "lstm_final_epochs": 4,
+  "lstm_weights_file": "final_global_lstm_2019_2025.weights.h5",
+  "commodity_to_id": {
+    "Bawang Merah": 0,
+    "Beras": 1,
+    "Daging Ayam Ras": 2,
+    "Daging Sapi/Kerbau": 3,
+    "Gula Pasir": 4,
+    "Jagung": 5,
+    "Telur Ayam Ras": 6
+  },
+  "selected_models": {
+    "Bawang Merah": "Global LSTM",
+    "Beras": "Global LSTM",
+    "Daging Ayam Ras": "Global LSTM",
+    "Daging Sapi/Kerbau": "SARIMA",
+    "Gula Pasir": "Seasonal Naive",
+    "Jagung": "SARIMA",
+    "Telur Ayam Ras": "Global LSTM"
+  },
+  "validation_smape": {
+    "Bawang Merah": 9.922073,
+    "Beras": 11.412076,
+    "Daging Ayam Ras": 6.864736,
+    "Daging Sapi/Kerbau": 12.908593,
+    "Gula Pasir": 56.561563,
+    "Jagung": 54.932103,
+    "Telur Ayam Ras": 5.355978
+  },
+  "selection_note": "Jenis model tetap dikunci berdasarkan validation 2023. Data 2025 digunakan untuk refit deployment, bukan untuk memilih ulang champion model.",
+  "keras_deployment_note": "Global LSTM deployment menggunakan arsitektur yang dibangun ulang dari kode dan load_weights() untuk menghindari masalah kompatibilitas serialisasi Keras."
+}
